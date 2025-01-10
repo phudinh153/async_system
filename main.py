@@ -1,10 +1,14 @@
 from typing import Union, Annotated, Literal
 
+from fastapi import APIRouter
 from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
+from dataclasses import dataclass
+
 
 app = FastAPI()
 
+router = APIRouter()
 
 class Item(BaseModel):
     name: str
@@ -31,8 +35,38 @@ class FilterParams(BaseModel):
     limit: int = Field(10, gt=0, le=100)
     offset: int = Field(0, ge=0)
     order_by: Literal["created_at", "updated_at"] = "created_at"
-    
+
 
 @app.get("/items/")
 async def read_items(filter_query: Annotated):
     pass
+
+
+@dataclass
+class Feed:
+    id: int
+    content: str
+    user_id: int
+    
+    def create_feed(self, id, content, user_id):
+        return Feed(id=id, content=content, user_id=user_id)
+    
+    def get_feed(self, feed_id: int) -> 'Feed':
+        return Feed(id=feed_id, content="Hello", user_id=1)
+
+
+class User:
+    id: int
+    name: str
+    
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+    
+    def get_feed(self, feed_id: int) -> Feed:
+        return Feed(id=feed_id, content="Hello", user_id=self.id)
+
+
+@app.get("/newfeeds/")
+async def read_newfeeds(filter_query: FilterParams):
+    return filter_query
