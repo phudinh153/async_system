@@ -38,9 +38,8 @@ class FilterParams(BaseModel):
 
 
 @app.get("/items/")
-async def read_items(filter_query: Annotated):
-    pass
-
+async def read_items(filter_query: FilterParams):
+    return {"data": filter_query}
 
 @dataclass
 class Feed:
@@ -65,8 +64,3 @@ class User:
     
     def get_feed(self, feed_id: int) -> Feed:
         return Feed(id=feed_id, content="Hello", user_id=self.id)
-
-
-@app.get("/newfeeds/")
-async def read_newfeeds(filter_query: FilterParams):
-    return filter_query
