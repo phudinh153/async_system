@@ -1,14 +1,31 @@
 from typing import Union, Annotated, Literal
-
+from loguru import logger
 from fastapi import APIRouter
 from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
+from config import settings
+
+logger.add(
+    "".join(
+        [
+            str(settings.root_dir),
+            "/logs/",
+            settings.logging.file.lower(),
+            ".log",
+        ]
+    ),
+    format=settings.logging.format,
+    rotation=settings.logging.rotation,
+    compression=settings.logging.compression,
+    level="INFO",
+)
 
 
 app = FastAPI()
 
 router = APIRouter()
+
 
 class Item(BaseModel):
     name: str
@@ -30,6 +47,7 @@ def read_item(item_id: int, q: Annotated[str | None, Query(max_length=50)] = Non
 def update_item(item_id: int, item: Item):
     return {"item_name": item.price, "item_id": item_id}
 
+
 class FilterParams(BaseModel):
     model_config = {"extra": "forbid"}
     limit: int = Field(10, gt=0, le=100)
@@ -41,26 +59,27 @@ class FilterParams(BaseModel):
 async def read_items(filter_query: FilterParams):
     return {"data": filter_query}
 
+
 @dataclass
 class Feed:
     id: int
     content: str
     user_id: int
-    
+
     def create_feed(self, id, content, user_id):
         return Feed(id=id, content=content, user_id=user_id)
-    
-    def get_feed(self, feed_id: int) -> 'Feed':
+
+    def get_feed(self, feed_id: int) -> "Feed":
         return Feed(id=feed_id, content="Hello", user_id=1)
 
 
 class User:
     id: int
     name: str
-    
+
     def __init__(self, id: int, name: str):
         self.id = id
         self.name = name
-    
+
     def get_feed(self, feed_id: int) -> Feed:
         return Feed(id=feed_id, content="Hello", user_id=self.id)
