@@ -5,6 +5,8 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from config import settings
+from application.application import create
+from presentation import rest
 
 logger.add(
     "".join(
@@ -22,7 +24,12 @@ logger.add(
 )
 
 
-app = FastAPI()
+app = create(
+    debug=settings.debug,
+    rest_routers=(rest.posts.router, rest.users.router),
+    startup_tasks=None,
+    shutdown_tasks=None,
+)
 
 router = APIRouter()
 
