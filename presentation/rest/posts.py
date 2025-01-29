@@ -1,4 +1,12 @@
 from fastapi import APIRouter
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+root_path = Path(__file__).parent.parent.parent
+sys.path.append(str(root_path))
+
+from infrastructure.utils.authentication import authenticate
 
 router = APIRouter(prefix="/posts")
 
@@ -11,3 +19,13 @@ async def create_post():
     # create post
     # fanout to followers
     return {"title": "ABS", "content": "XYZ"}
+
+
+@authenticate
+def create_posts():
+    print("Post creating")
+    return "Post Created"
+
+if __name__ == "__main__":
+    # This will only run when file is executed directly
+    print(create_posts())
