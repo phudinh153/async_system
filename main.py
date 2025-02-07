@@ -5,7 +5,7 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from config import settings
-from application.application import create
+from infrastructure.application import create
 from presentation import rest
 
 logger.add(
@@ -90,3 +90,4 @@ class User:
 
     def get_feed(self, feed_id: int) -> Feed:
         return Feed(id=feed_id, content="Hello", user_id=self.id)
+
