@@ -13,6 +13,9 @@ router = APIRouter(
 VALID_NAME_REGEX = re.compile(r'^[a-zA-Z0-9_]{3,20}$')
 
 class User(BaseModel):
+    model_config = {
+        "extra": "forbid",
+    }
     name: str = Field(examples=["Phu"])
     email: EmailStr = Field(examples=["phu153@gmail.com"], frozen=True)
     password: SecretStr = Field(exclude=True)
@@ -31,6 +34,7 @@ class User(BaseModel):
         if values.password != values.password_repeat:
             return ValueError("Passwords do not match")
         return values
+    
 
 @router.get('/')
 async def read_users():
