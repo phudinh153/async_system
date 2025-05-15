@@ -1,12 +1,12 @@
 from typing import Union, Annotated, Literal
 from loguru import logger
 from fastapi import APIRouter
-from fastapi import FastAPI, Query
+from fastapi import Query
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from config import settings
 from infrastructure.application import create
-from presentation import rest
+import rest
 
 logger.add(
     "".join(

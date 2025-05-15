@@ -1,12 +1,11 @@
 from fastapi import APIRouter
 import sys
 from pathlib import Path
+from infrastructure.utils.authentication import authenticate
 
 # Add project root to Python path
 root_path = Path(__file__).parent.parent.parent
 sys.path.append(str(root_path))
-
-from infrastructure.utils.authentication import authenticate
 
 router = APIRouter(prefix="/posts")
 
