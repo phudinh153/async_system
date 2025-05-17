@@ -6,9 +6,11 @@ from sqlalchemy.orm import (
     relationship
 )
 from uuid import UUID
+from dataclasses import dataclass
 
 Base = declarative_base()
 
+@dataclass()
 class User(Base):
     __tablename__ = "users"
     id: Mapped[UUID] = mapped_column(primary_key=True, default=sa.func.uuid_generate_v4())
