@@ -1,1 +1,1 @@
-from database.tables import *
+from src.infrastructure.database.tables import *

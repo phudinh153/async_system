@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 import sys
 from pathlib import Path
-from infrastructure.utils.authentication import authenticate
+from src.infrastructure.utils.authentication import authenticate
 
 # Add project root to Python path
 root_path = Path(__file__).parent.parent.parent

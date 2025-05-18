@@ -1,14 +1,11 @@
-from sqlalchemy.orm import (
-    declarative_base,
-    Mapped, 
-    mapped_column,
-    relationship
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 import sqlalchemy as sa
 from uuid import UUID
-from user import User
+from src.infrastructure.database.session import Base
+from typing import TYPE_CHECKING
 
-Base = declarative_base()
+if TYPE_CHECKING:
+    from src.infrastructure.database.tables.user import User
 
 
 class FoodItem(Base):
@@ -18,6 +15,9 @@ class FoodItem(Base):
     )
     name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
     price: Mapped[float] = mapped_column(sa.Float, nullable=False)
+    users: Mapped["User"] = relationship(
+        "User", back_populates="food_items", secondary="user_food_item"
+    )
 
     def __repr__(self):
         return f"<Food(id={self.id}, name={self.name}, price={self.price})>"
@@ -33,11 +33,6 @@ class UserFoodItem(Base):
     )
     food_item_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey("food_items.id"), nullable=False, index=True
-    )
-
-    user: Mapped["User"] = relationship("User", back_populates="user_food_item")
-    food_item: Mapped["FoodItem"] = relationship(
-        "FoodItem", back_populates="user_food_item"
     )
 
     def __repr__(self):

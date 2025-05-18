@@ -21,11 +21,19 @@ class PublicApiSettings(BaseModel):
 
 # Database Settings
 class DatabaseSettings(BaseModel):
-    name: str = "db.postgres"
+    # name: str = "db.postgres"
+    is_async: bool = True
 
     @property
-    def url(self) -> str:
-        return f"postgresql://postgres:postgres@localhost:5432/{self.name}"
+    def url(self, is_async=False) -> str:
+        """Return synchronous database URL."""
+        # return f"postgresql://postgres:postgres@localhost:5432/{self.name}"
+        return "sqlite:///:memory:"
+
+    @property
+    def async_url(self) -> str:
+        """Return asynchronous database URL."""
+        return "sqlite+aiosqlite:///:memory:"
 
 
 class KafkaSettings(BaseModel):
