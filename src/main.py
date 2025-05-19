@@ -3,7 +3,6 @@ from loguru import logger
 from fastapi import APIRouter
 from fastapi import Query
 from pydantic import BaseModel, Field
-from dataclasses import dataclass
 from config import settings
 from src.infrastructure.application import create
 import src.rest as rest

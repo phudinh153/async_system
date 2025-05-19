@@ -23,7 +23,7 @@ class PublicApiSettings(BaseModel):
 class DatabaseSettings(BaseModel):
     # name: str = "db.postgres"
     is_async: bool = True
-
+    db_schema: str = "public"
     @property
     def url(self, is_async=False) -> str:
         """Return synchronous database URL."""

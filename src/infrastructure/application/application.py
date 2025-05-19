@@ -1,19 +1,55 @@
 import asyncio
 from functools import partial
 from typing import Callable, Coroutine, Iterable
-
 from fastapi import APIRouter, FastAPI
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
+from src.infrastructure.database.session import async_engine, Base
+from contextlib import asynccontextmanager
+import logging
 
-# from src.infrastructure.errors import (
-#     BaseError,
-#     custom_base_errors_handler,
-#     pydantic_validation_errors_handler,
-#     python_base_error_handler,
-# )
+logger = logging.getLogger(__name__)
 
-__all__ = ("create",)
+# Init Database in memmory
+async def init_db() -> None:
+    """Initialize the database with tables."""
+    try:
+        logger.info("Creating database tables...")
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
+        raise
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for FastAPI application.
+    Handles startup and shutdown events.
+    """
+    # Startup: Initialize the database
+    try:
+        await init_db()
+        logger.info("Application startup completed successfully")
+
+        startup_coroutines = []
+        for task in app.state.startup_tasks:
+            startup_coroutines.append(asyncio.create_task(task()))
+
+        if startup_coroutines:
+            logger.info(f"Running {len(startup_coroutines)} startup tasks...")
+            await asyncio.gather(*startup_coroutines)
+
+        logger.info("Application startup completed successfully")
+    except Exception as e:
+        logger.critical(f"Application startup failed: {e}")
+        raise
+
+    yield  # Application runs here
+
+    # Shutdown: Cleanup resources
+    logger.info("Application shutting down...")
 
 
 def create(
@@ -28,27 +64,13 @@ def create(
     """
 
     # Initialize the base FastAPI application
-    app = FastAPI(**kwargs)
+    app = FastAPI(**kwargs, lifespan=lifespan)
+    
+    app.state.startup_tasks = startup_tasks or []
+    app.state.shutdown_tasks = shutdown_tasks or []
 
     # Include REST API routers
     for router in rest_routers:
         app.include_router(router)
-
-    # Extend FastAPI default error handlers
-    # app.exception_handler(RequestValidationError)(pydantic_validation_errors_handler)
-    # app.exception_handler(BaseError)(custom_base_errors_handler)
-    # app.exception_handler(ValidationError)(pydantic_validation_errors_handler)
-    # app.exception_handler(Exception)(python_base_error_handler)
-
-    # Define startup tasks that are running asynchronous using FastAPI hook
-    if startup_tasks:
-        for task in startup_tasks:
-            coro = partial(asyncio.create_task, task())
-            app.on_event("startup")(coro)
-
-    # Define shutdown tasks using FastAPI hook
-    if shutdown_tasks:
-        for task in shutdown_tasks:
-            app.on_event("shutdown")(task)
 
     return app

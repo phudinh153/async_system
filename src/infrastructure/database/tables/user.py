@@ -9,9 +9,7 @@ from src.infrastructure.database.tables.food_item import FoodItem
 @dataclass
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[UUID] = mapped_column(
-        primary_key=True, default=sa.func.uuid_generate_v4()
-    )
+
     name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
     email: Mapped[str] = mapped_column(sa.String(50), unique=True, nullable=False)
 
@@ -25,9 +23,7 @@ class User(Base):
 
 class UserAuth(Base):
     __tablename__ = "user_auth"
-    id: Mapped[UUID] = mapped_column(
-        primary_key=True, default=sa.func.uuid_generate_v4()
-    )
+
     user_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey("users.id"), nullable=False, index=True
     )
