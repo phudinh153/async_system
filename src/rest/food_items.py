@@ -7,6 +7,8 @@ from uuid import UUID
 from src.infrastructure.utils import authenticate
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
+from pydantic import BaseModel
+from src.domain.users import TokenParsedUser
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -44,7 +46,6 @@ async def read_food_items(request: Request,
     return food_items
 
 
-@authenticate
 @router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_food_item(request: Request,
                            repo: FoodItemRepository = Depends(get_food_item_repo)) -> FoodItemResponse:
@@ -57,8 +58,8 @@ async def create_food_item(request: Request,
     return food_item
 
 
-food_items = [
-    {"id": 1, "name": "Pizza", "price": 9.99},
-    {"id": 2, "name": "Burger", "price": 5.99},
-    {"id": 3, "name": "Pasta", "price": 7.99},
-]
+@router.post('/{food_item_id}/like', status_code=status.HTTP_200_OK)
+async def like_food_item(food_item_id: UUID,
+                         current_user: TokenParsedUser = Depends(authenticate),
+                         repo: FoodItemRepository = Depends(get_food_item_repo)) -> dict:
+    return {}
