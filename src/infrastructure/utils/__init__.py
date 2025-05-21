@@ -1,3 +1,3 @@
-from . import authentication
-
-__all__ = ["authentication"]
+from src.infrastructure.utils.authentication import (
+    authenticate
+)

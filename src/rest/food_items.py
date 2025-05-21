@@ -4,6 +4,11 @@ from src.infrastructure.database.session import get_session_factory
 from src.infrastructure.database.tables import FoodItem
 from pydantic import BaseModel
 from uuid import UUID
+from src.infrastructure.utils import authenticate
+from fastapi.security import OAuth2PasswordBearer
+from typing import Annotated
+
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 router = APIRouter(
     prefix='/food_items',
@@ -27,6 +32,7 @@ async def get_food_item_repo():
 
 @router.get('/')
 async def read_food_items(request: Request,
+                          token: Annotated[str, Depends(oauth_scheme)],
                           repo: FoodItemRepository = Depends(get_food_item_repo)) -> list[FoodItemResponse]:
     """
     Get all food items
@@ -37,6 +43,8 @@ async def read_food_items(request: Request,
     
     return food_items
 
+
+@authenticate
 @router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_food_item(request: Request,
                            repo: FoodItemRepository = Depends(get_food_item_repo)) -> FoodItemResponse:

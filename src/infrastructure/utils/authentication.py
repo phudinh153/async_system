@@ -3,9 +3,9 @@ from functools import wraps
 
 def authenticate(func):
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         print("Succeed authentication")
-        value = func()
+        value = await func(*args, **kwargs)
         return value
     
     return wrapper
