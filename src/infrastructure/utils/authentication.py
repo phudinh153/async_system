@@ -15,7 +15,7 @@ def authenticate(func):
     return wrapper
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token")
 
 def fake_decode_token(token: str):
     return TokenParsedUser(username=token + "_user", email=token + "@example.com")

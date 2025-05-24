@@ -4,10 +4,9 @@ from src.infrastructure.database.session import get_session_factory
 from src.infrastructure.database.tables import FoodItem
 from pydantic import BaseModel
 from uuid import UUID
-from src.infrastructure.utils import authenticate
+from src.infrastructure.utils import authenticate, get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
-from pydantic import BaseModel
 from src.domain.users import TokenParsedUser
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -22,12 +21,6 @@ class FoodItemResponse(BaseModel):
     id: UUID
     name: str
     price: float
-    # Add other fields from your FoodItem model
-
-    # Configure ORM mode to allow converting from SQLAlchemy models
-    class Config:
-        model_config = {"from_attributes": True}
-
 
 async def get_food_item_repo():
     return FoodItemRepository(get_session_factory())
@@ -60,6 +53,6 @@ async def create_food_item(request: Request,
 
 @router.post('/{food_item_id}/like', status_code=status.HTTP_200_OK)
 async def like_food_item(food_item_id: UUID,
-                         current_user: TokenParsedUser = Depends(authenticate),
+                         current_user: TokenParsedUser = Depends(get_current_user),
                          repo: FoodItemRepository = Depends(get_food_item_repo)) -> dict:
     return {}

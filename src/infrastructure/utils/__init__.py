@@ -1,3 +1,1 @@
-from src.infrastructure.utils.authentication import (
-    authenticate
-)
+from src.infrastructure.utils.authentication import *
