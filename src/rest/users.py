@@ -5,13 +5,17 @@ from fastapi import (
 )
 from pydantic import (
     BaseModel, Field, EmailStr, SecretStr,
-    field_validator, field_serializer,
+    field_validator,
     model_validator
 )
 import re
-from src.infrastructure.utils import get_current_user
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
+from src.infrastructure.utils import (
+    authenticate_user, get_current_user,
+    create_access_token, Token, UserInDB,
+    UserResponse
+)
 
 router = APIRouter(
     prefix = '/users'
@@ -51,51 +55,25 @@ async def create_users(user: User):
     print(user)
     return user
 
-@router.get("/me")
-async def get_current_user_profile(user: User = Depends(get_current_user)):
-    return user
-
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "secret123",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
-
-class UserMock(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-
-
-class UserInDB(UserMock):
-    hashed_password: str
-
-
-def fake_hash_password(pw):
-    return pw + "123"
-
 @router.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     """
     Dummy function to simulate user authentication.
     In a real application, you would verify the token and retrieve the user.
     """
-    user_dict = fake_users_db.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    if not user.hashed_password == fake_hash_password(form_data.password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    
-    return {"access_token": user.username, "token_type": "bearer"}
+    user = authenticate_user(None, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(
+        data={"sub": user.username}
+    )
+
+    return Token(access_token=access_token, token_type="bearer")
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_profile(user: Annotated[UserInDB, Depends(get_current_user)]):
+    return user
