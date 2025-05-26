@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import (
     BaseModel,
-    EmailStr,
 )
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
@@ -130,10 +129,3 @@ async def get_current_user(token: str = Depends(oauth_scheme)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return UserInDB(**user)
-
-
-
-class UserResponse(BaseModel):
-    username: str
-    email: EmailStr
-    full_name: str | None = None

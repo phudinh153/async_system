@@ -3,47 +3,21 @@ from fastapi import (
     Depends,
     HTTPException
 )
-from pydantic import (
-    BaseModel, Field, EmailStr, SecretStr,
-    field_validator,
-    model_validator
-)
-import re
+
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from src.infrastructure.utils import (
     authenticate_user, get_current_user,
     create_access_token, Token, UserInDB,
+)
+from src.domain.users import (
+    User,
     UserResponse
 )
 
 router = APIRouter(
     prefix = '/users'
 )
-
-VALID_NAME_REGEX = re.compile(r'^[a-zA-Z0-9_]{3,20}$')
-
-class User(BaseModel):
-    model_config = {
-        "extra": "forbid",
-    }
-    name: str = Field(examples=["Phu"])
-    email: EmailStr = Field(examples=["phu153@gmail.com"], frozen=True)
-    password: SecretStr = Field(exclude=True)
-    password_repeat: SecretStr = Field(exclude=True)
-    
-    @field_validator("name")
-    @classmethod
-    def validate_name(cls, v: str):
-        if not VALID_NAME_REGEX.match(v):
-            raise ValueError("Invalid name")
-        return v
-    
-    @model_validator(mode="after")
-    def check_passwords_matched(self):
-        if self.password != self.password_repeat:
-            raise ValueError("Passwords do not match")
-        return self
 
 
 @router.get('/')
