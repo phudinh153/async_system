@@ -8,6 +8,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from datetime import timedelta, datetime, timezone
 from functools import wraps
+from config import settings
 
 
 def authenticate(func):
@@ -54,8 +55,8 @@ def fake_hash_password(pw):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "50f4672f90876b33026ced17eec19b5c3cb62435100e5b09a3d867c3e349d624"
-ALGORITHM = "HS256"
+SECRET_KEY = settings.authentication.access_token.secret_key
+ALGORITHM = settings.authentication.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 

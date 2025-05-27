@@ -1,7 +1,6 @@
-from typing import Union, Annotated, Literal
+from typing import Literal
 from loguru import logger
 from fastapi import APIRouter
-from fastapi import Query
 from pydantic import BaseModel, Field
 from config import settings
 from src.infrastructure.application import create
