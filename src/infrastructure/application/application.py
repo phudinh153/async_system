@@ -7,6 +7,9 @@ from pydantic import ValidationError
 from src.infrastructure.database.session import async_engine, Base
 from contextlib import asynccontextmanager
 import logging
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +68,11 @@ def create(
 
     # Initialize the base FastAPI application
     app = FastAPI(**kwargs, lifespan=lifespan)
-    
+
+    # Add middlewares
+    app.add_middleware(HTTPSRedirectMiddleware)
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+
     app.state.startup_tasks = startup_tasks or []
     app.state.shutdown_tasks = shutdown_tasks or []
 
