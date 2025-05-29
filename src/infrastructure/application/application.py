@@ -9,9 +9,16 @@ from contextlib import asynccontextmanager
 import logging
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 
 logger = logging.getLogger(__name__)
+
+allowed_origins = [
+    "http://localhost:3000",
+    "https://localhost:3000"
+]
+
 
 # Init Database in memmory
 async def init_db() -> None:
@@ -72,6 +79,13 @@ def create(
     # Add middlewares
     app.add_middleware(HTTPSRedirectMiddleware)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.state.startup_tasks = startup_tasks or []
     app.state.shutdown_tasks = shutdown_tasks or []
