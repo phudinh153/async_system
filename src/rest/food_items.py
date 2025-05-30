@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request, status
-from src.domain.food_item import FoodItemRepository
+from domain.food_items.food_item import FoodItemRepository
 from src.infrastructure.database.session import get_session_factory
 from src.infrastructure.database.tables import FoodItem
 from pydantic import BaseModel
