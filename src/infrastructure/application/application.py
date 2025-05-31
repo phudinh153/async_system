@@ -1,16 +1,16 @@
 import asyncio
-from functools import partial
 from typing import Callable, Coroutine, Iterable
 from fastapi import APIRouter, FastAPI
-from fastapi.exceptions import RequestValidationError
-from pydantic import ValidationError
 from src.infrastructure.database.session import async_engine, Base
 from contextlib import asynccontextmanager
 import logging
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +86,13 @@ def create(
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    limiter = Limiter(
+        key_func=lambda request: request.client.host,
+        default_limits=["200 per day", "50 per hour"],
+    )
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
 
     app.state.startup_tasks = startup_tasks or []
     app.state.shutdown_tasks = shutdown_tasks or []
