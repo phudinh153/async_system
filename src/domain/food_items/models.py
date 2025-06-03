@@ -5,6 +5,7 @@ from pydantic import (
     SecretStr,
     field_validator,
     model_validator,
+    ConfigDict,
 )
 
 class FoodItem(BaseModel):
@@ -24,11 +25,13 @@ class FoodItem(BaseModel):
         return value.strip()
 
 class FoodItemResponse(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        from_attributes=True,
+    )
+
     id: str
     name: str
     description: str | None = None
     price: float
     category: str
-
-    class Config:
-        orm_mode = True  # Enable ORM mode for compatibility with ORMs like SQLAlchemy

@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
     logger.info("Application shutting down...")
 
 
-def create(
+def create_app(
     *_,
     rest_routers: Iterable[APIRouter],
     startup_tasks: Iterable[Callable[[], Coroutine]] | None = None,

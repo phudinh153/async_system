@@ -1,9 +1,12 @@
 from typing import Literal
 from loguru import logger
-from fastapi import APIRouter
+from fastapi import (
+    APIRouter,
+    status,
+)
 from pydantic import BaseModel, Field
 from config import settings
-from src.infrastructure.application import create
+from src.infrastructure.application import create_app
 import src.rest as rest
 
 logger.add(
@@ -22,7 +25,7 @@ logger.add(
 )
 
 
-app = create(
+app = create_app(
     debug=settings.debug,
     rest_routers=(rest.posts.router, rest.users.router, rest.food_items.router),
     startup_tasks=None,
@@ -31,6 +34,10 @@ app = create(
 
 router = APIRouter()
 
+
+@app.get("/", status_code=status.HTTP_200_OK)
+async def ping():
+    return {"msg": "Hello World"}
 
 class FilterParams(BaseModel):
     model_config = {"extra": "forbid"}
@@ -42,6 +49,3 @@ class FilterParams(BaseModel):
 @app.get("/items/")
 async def read_items(filter_query: FilterParams):
     return {"data": filter_query}
-
-
-
