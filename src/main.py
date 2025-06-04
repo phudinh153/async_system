@@ -27,7 +27,12 @@ logger.add(
 
 app = create_app(
     debug=settings.debug,
-    rest_routers=(rest.posts.router, rest.users.router, rest.food_items.router),
+    rest_routers=(
+        rest.posts.router,
+        rest.users.router,
+        rest.food_items.router,
+        rest.websocket.router,
+    ),
     startup_tasks=None,
     shutdown_tasks=None,
 )
@@ -38,6 +43,12 @@ router = APIRouter()
 @app.get("/", status_code=status.HTTP_200_OK)
 async def ping():
     return {"msg": "Hello World"}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "debug": settings.debug}
+
 
 class FilterParams(BaseModel):
     model_config = {"extra": "forbid"}

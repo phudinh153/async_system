@@ -11,6 +11,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,14 @@ async def lifespan(app: FastAPI):
     logger.info("Application shutting down...")
 
 
+def get_client_ip(request):
+    """Get client IP address safely"""
+    try:
+        return get_remote_address(request)
+    except Exception:
+        return "unknown"
+
+
 def create_app(
     *_,
     rest_routers: Iterable[APIRouter],
@@ -77,7 +86,8 @@ def create_app(
     app = FastAPI(**kwargs, lifespan=lifespan)
 
     # Add middlewares
-    app.add_middleware(HTTPSRedirectMiddleware)
+    if not settings.debug:  # Only in production
+        app.add_middleware(HTTPSRedirectMiddleware)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
     app.add_middleware(
         CORSMiddleware,
@@ -88,7 +98,7 @@ def create_app(
     )
 
     limiter = Limiter(
-        key_func=lambda request: request.client.host,
+        key_func=get_client_ip,
         default_limits=["200 per day", "50 per hour"],
     )
     app.state.limiter = limiter

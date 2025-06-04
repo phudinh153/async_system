@@ -17,4 +17,5 @@ dependencies = [
     "slowapi>=0.1.9",
     "httpx>=0.28.1",
     "pytest>=8.4.0",
+    "websockets>=15.0.1",
 ]
