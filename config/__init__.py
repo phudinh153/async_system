@@ -25,7 +25,7 @@ class DatabaseSettings(BaseModel):
     is_async: bool = True
     db_schema: str = "public"
     @property
-    def url(self, is_async=False) -> str:
+    def url(self) -> str:
         """Return synchronous database URL."""
         # return f"postgresql://postgres:postgres@localhost:5432/{self.name}"
         return "sqlite:///:memory:"
