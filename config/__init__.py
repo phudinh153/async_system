@@ -103,7 +103,6 @@ class Settings(BaseSettings):
 # --------------------------------------
 ROOT_PATH = Path(__file__).parent.parent
 
-# ======================================
 # Load settings
 # ======================================
 settings = Settings(
