@@ -38,6 +38,8 @@ jobs:
             echo "CloudFormation template is invalid"
             exit 1
           fi
+      - name: Print stack name
+        run: echo "STACK_NAME is $STACK_NAME"
 
       - name: Deploy CloudFormation template
         run: |
