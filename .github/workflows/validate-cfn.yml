@@ -43,8 +43,8 @@ jobs:
 
       - name: Deploy CloudFormation template
         run: |
-          aws cloudformation create-stack 
-          --stack-name $STACK_NAME 
+          aws cloudformation create-stack \
+          --stack-name $STACK_NAME \
           --template-body file://cloudformation/ec2-template.yml
 
       - name: Check if stack is created
