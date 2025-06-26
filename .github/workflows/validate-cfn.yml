@@ -1,6 +1,10 @@
 name: Validate CloudFormation Template
 run-name: ${{ github.actor }} is validating the CloudFormation template 📝
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 env:
   STACK_NAME: ec2-stack-${{ github.run_id }}
 
