@@ -47,6 +47,10 @@ jobs:
           --stack-name $STACK_NAME \
           --template-body file://cloudformation/ec2-template.yml
 
+      - name: Wait for stack creation to complete
+        run: |
+          aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
+
       - name: Check if stack is created
         run: |
           aws cloudformation describe-stacks --stack-name $STACK_NAME
