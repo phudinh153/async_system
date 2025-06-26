@@ -1,0 +1,39 @@
+name: Validate CloudFormation Template
+run-name: ${{ github.actor }} is validating the CloudFormation template 📝
+on: [pull_request]
+env:
+  STACK_NAME: ec2-stack-${{ github.run_id }}
+
+jobs:
+  validate-cfn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate CloudFormation template
+        run: |
+          aws cloudformation validate-template --template-body file://cloudformation/ec2-template.yml
+
+      - name: Check if template is valid
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "CloudFormation template is valid"
+          else
+            echo "CloudFormation template is invalid"
+            exit 1
+          fi
+
+      - name: Deploy CloudFormation template
+        run: |
+          aws cloudformation create-stack 
+          --stack-name $STACK_NAME 
+          --template-body file://cloudformation/ec2-template.yml
+
+      - name: Check if stack is created
+        run: |
+          aws cloudformation describe-stacks --stack-name $STACK_NAME
+      
+      - name: Clean up on merge
+        run: |
+          aws cloudformation delete-stack --stack-name $STACK_NAME
