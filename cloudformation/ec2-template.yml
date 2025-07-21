@@ -1,5 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "EC2 Instance"
+
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair
+    Type: AWS::EC2::KeyPair::ec2-key
+
 Resources:
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -18,3 +24,4 @@ Resources:
       InstanceType: t2.micro
       SecurityGroupIds:
         - Ref: MySecurityGroup
+      KeyName: !Ref KeyName
