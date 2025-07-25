@@ -4,7 +4,7 @@ Description: "EC2 Instance"
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair
-    Type: AWS::EC2::KeyPair::ec2-key
+    Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
   MySecurityGroup:
@@ -25,3 +25,8 @@ Resources:
       SecurityGroupIds:
         - Ref: MySecurityGroup
       KeyName: !Ref KeyName
+
+Outputs:
+  InstancePublicIp:
+    Description: Public IP of the EC2 instance
+    Value: !GetAtt EC2Instance.PublicIp
