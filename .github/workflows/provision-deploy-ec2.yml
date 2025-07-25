@@ -42,7 +42,7 @@ jobs:
       - name: Wait for SSH to be available
         run: |
           for i in {1..30}; do
-            if ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ env.INSTANCE_IP }} 'echo ok'; then
+            if ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY_NAME }} ${{ secrets.EC2_USER }}@${{ env.INSTANCE_IP }} 'echo ok'; then
               break
             fi
             sleep 10
