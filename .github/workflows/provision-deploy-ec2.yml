@@ -18,7 +18,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-oidc
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/github-oidc
           aws-region: ${{ vars.AWS_REGION }}
       
       - name: Validate CloudFormation template
@@ -42,7 +42,7 @@ jobs:
       - name: Wait for SSH to be available
         run: |
           for i in {1..30}; do
-            if ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY_NAME }} ${{ secrets.EC2_USER }}@${{ env.INSTANCE_IP }} 'echo ok'; then
+            if ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ vars.EC2_USER }}@${{ env.INSTANCE_IP }} 'echo ok'; then
               break
             fi
             sleep 10
@@ -52,8 +52,8 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.INSTANCE_IP }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: "."
           target: "/home/${{ secrets.EC2_USER }}/app"
 
@@ -61,8 +61,8 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.INSTANCE_IP }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY_NAME }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USER }}/app
             python3 -m venv venv
