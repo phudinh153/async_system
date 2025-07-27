@@ -56,9 +56,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/${{ vars.EC2_USER }}/app
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install uv
-            uv venv install -r requirements.txt
-            # alembic upgrade head  # Uncomment if you use Alembic
-            nohup uvicorn src.main:app --host 0.0.0.0 --port 80 &
+            docker stop myapp || true
+            docker rm myapp || true
+            docker build -t myapp:latest -f builders/Dockerfile .
+            docker run -d --name myapp -p 80:8080 myapp:latest
