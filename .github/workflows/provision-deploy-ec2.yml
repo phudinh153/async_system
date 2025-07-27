@@ -20,7 +20,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/github-oidc
           aws-region: ${{ vars.AWS_REGION }}
-      
+
       - name: Validate CloudFormation template
         run: |
           aws cloudformation validate-template \
@@ -58,6 +58,7 @@ jobs:
             cd /home/${{ vars.EC2_USER }}/app
             python3 -m venv venv
             source venv/bin/activate
+            pip install uv
             uv venv install -r requirements.txt
             # alembic upgrade head  # Uncomment if you use Alembic
             nohup uvicorn src.main:app --host 0.0.0.0 --port 80 &
