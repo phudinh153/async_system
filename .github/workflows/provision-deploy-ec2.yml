@@ -67,7 +67,7 @@ jobs:
               sleep 5
             fi
 
-            sudo docker stop myapp || true
-            sudo docker rm myapp || true
+            sudo docker stop myapp 2>/dev/null || true
+            sudo docker rm myapp 2>/dev/null || true
             sudo docker build -t myapp:latest -f builders/Dockerfile .
             sudo docker run -d --name myapp -p 80:8080 myapp:latest

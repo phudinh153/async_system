@@ -55,6 +55,9 @@ ADD . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
+# Fix permissions after copying everything
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app/logs
+
 # Switch to the non-privileged user to run the application.
 USER appuser
 
@@ -68,4 +71,4 @@ ENTRYPOINT []
 EXPOSE 8080
 
 # Run the application.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
