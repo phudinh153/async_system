@@ -7,6 +7,7 @@ from pydantic import (
     model_validator,
     ConfigDict,
 )
+from typing import Dict, Any
 
 class FoodItem(BaseModel):
     model_config = {
@@ -16,6 +17,21 @@ class FoodItem(BaseModel):
     description: str | None = Field(default=None, examples=["Delicious cheese pizza"])
     price: float = Field(gt=0, examples=[9.99])
     category: str = Field(examples=["Italian", "Fast Food", "Vegetarian"])
+    nutrients: Dict[str, Dict[str, float]] | None = Field(
+        default=None,
+        description="Nutrient information in grams",
+        examples=[{
+            "protein": {"amount": 12.5},
+            "carbohydrates": {"amount": 45.2},
+            "fat": {"amount": 8.3},
+            "fiber": {"amount": 2.1},
+            "vitamins": {
+                "vitamin_a": 0.003,
+                "vitamin_c": 0.012,
+                "vitamin_d": 0.0002
+            }
+        }]
+    )
 
     @field_validator("name")
     @classmethod
@@ -35,3 +51,4 @@ class FoodItemResponse(BaseModel):
     description: str | None = None
     price: float
     category: str
+    nutrients: Dict[str, Dict[str, float]] | None = None

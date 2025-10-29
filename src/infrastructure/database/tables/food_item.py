@@ -3,7 +3,15 @@ import sqlalchemy as sa
 from uuid import UUID
 from src.infrastructure.database.session import Base
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Any
+
+try:
+    from sqlalchemy.dialects.postgresql import JSONB
+    JSON_TYPE = JSONB
+    _HAS_JSONB = True
+except ImportError:
+    JSON_TYPE = sa.JSON  # SQLite fallback
+    _HAS_JSONB = False
 
 if TYPE_CHECKING:
     from src.infrastructure.database.tables.user import User
@@ -12,8 +20,12 @@ if TYPE_CHECKING:
 class FoodItem(Base):
     __tablename__ = "food_items"
 
-    name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
-    price: Mapped[float] = mapped_column(sa.Float, nullable=False)
+    nutrients: Mapped[Dict[str, Any]] = mapped_column(
+        JSON_TYPE,
+        nullable=True,
+        default=dict,
+        server_default=sa.text("'{}'::jsonb") if _HAS_JSONB else None,
+    )
     users: Mapped[List["User"]] = relationship(
         "User", back_populates="food_items", secondary="user_food_item"
     )
