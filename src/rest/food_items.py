@@ -11,37 +11,42 @@ from src.domain.users import TokenParsedUser
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-router = APIRouter(
-    prefix='/food_items',
-    tags=['food_items']
-)
+router = APIRouter(prefix="/food_items", tags=["food_items"])
 
 
 class FoodItemResponse(BaseModel):
     id: UUID
     name: str
     price: float
+    # nutrients: mapping of nutrient category/name -> measurements in grams
+    # Example: {"protein": {"amount": 12.0}, "vitamin_c": {"amount": 0.03}}
+    nutrients: dict | None = None
+
 
 async def get_food_item_repo():
     return FoodItemRepository(get_session_factory())
 
-@router.get('/')
-async def read_food_items(request: Request,
-                          token: Annotated[str, Depends(oauth_scheme)],
-                          repo: FoodItemRepository = Depends(get_food_item_repo)) -> list[FoodItemResponse]:
+
+@router.get("/")
+async def read_food_items(
+    request: Request,
+    token: Annotated[str, Depends(oauth_scheme)],
+    repo: FoodItemRepository = Depends(get_food_item_repo),
+) -> list[FoodItemResponse]:
     """
     Get all food items
     """
     food_items = []
     async for item in repo.get_all():
         food_items.append(item)
-    
+
     return food_items
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
-async def create_food_item(request: Request,
-                           repo: FoodItemRepository = Depends(get_food_item_repo)) -> FoodItemResponse:
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_food_item(
+    request: Request, repo: FoodItemRepository = Depends(get_food_item_repo)
+) -> FoodItemResponse:
     """
     Create a new food item
     """
@@ -51,8 +56,10 @@ async def create_food_item(request: Request,
     return food_item
 
 
-@router.post('/{food_item_id}/like', status_code=status.HTTP_200_OK)
-async def like_food_item(food_item_id: UUID,
-                         current_user: TokenParsedUser = Depends(get_current_user),
-                         repo: FoodItemRepository = Depends(get_food_item_repo)) -> dict:
+@router.post("/{food_item_id}/like", status_code=status.HTTP_200_OK)
+async def like_food_item(
+    food_item_id: UUID,
+    current_user: TokenParsedUser = Depends(get_current_user),
+    repo: FoodItemRepository = Depends(get_food_item_repo),
+) -> dict:
     return {}
